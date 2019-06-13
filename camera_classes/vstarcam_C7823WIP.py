@@ -11,8 +11,8 @@ from base_camera_classes.base_ONVIF_PTZ_camera import base_ONVIF_PTZ_camera
 class vstarcam_C7823WIP(base_ONVIF_PTZ_camera):
 
 	# constructor
-	def __init__(self, isdebug, camera_ip_address, username, password, camera_name, onvif_port, onvif_wsdl_path):
-		base_ONVIF_PTZ_camera.__init__(self, isdebug, camera_ip_address, username, password, camera_name, onvif_port,
+	def __init__(self, camera_ip_address, username, password, camera_name, onvif_port, onvif_wsdl_path):
+		base_ONVIF_PTZ_camera.__init__(self, camera_ip_address, username, password, camera_name, onvif_port,
 									   onvif_wsdl_path)
 
 	# overrides
@@ -48,7 +48,7 @@ class vstarcam_C7823WIPCameraBuilder():
 	def __init__(self):
 		self._instance = None
 
-	def __call__(self, isdebug, onvif_wsdl_path, settings, **_ignored):
+	def __call__(self, onvif_wsdl_path, settings, **_ignored):
 		camera_ip_address = settings['ip_addr']
 		username = settings['username']
 		password = settings['password']
@@ -56,7 +56,7 @@ class vstarcam_C7823WIPCameraBuilder():
 		onvif_port = settings['onvif_port']
 
 		if not self._instance:
-			self._instance = vstarcam_C7823WIP(isdebug, camera_ip_address, username, password, camera_name, onvif_port,
+			self._instance = vstarcam_C7823WIP(camera_ip_address, username, password, camera_name, onvif_port,
 											   onvif_wsdl_path)
 
 		return self._instance
@@ -66,7 +66,7 @@ class vstarcam_C7823WIPTaskBuilder:
 	def __init__(self):
 		self._instance = None
 
-	def __call__(self, isdebug, onvif_wsdl_path, camera_settings, appsettings, **_ignored):
+	def __call__(self, onvif_wsdl_path, camera_settings, appsettings, **_ignored):
 		camera_ip_address = camera_settings['ip_addr']
 		username = camera_settings['username']
 		password = camera_settings['password']
@@ -114,7 +114,7 @@ class vstarcam_C7823WIPTaskBuilder:
 								cwd=os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 		# debug
-		# print(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+		# globals.logger.debug(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 		# (out, err) = proc.communicate()
 
 		return proc

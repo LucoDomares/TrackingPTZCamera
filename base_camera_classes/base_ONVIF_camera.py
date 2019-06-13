@@ -4,6 +4,7 @@ import zeep
 from onvif import ONVIFCamera
 
 from base_camera_classes.base_camera import base_camera
+from helpers import globals
 
 
 def zeep_pythonvalue(self, xmlvalue):
@@ -27,24 +28,22 @@ class base_ONVIF_camera(base_camera):
 		return hasattr(self, "_isinitialised")
 
 	# constructor
-	def __init__(self, isdebug, camera_ip_address, username, password, camera_name, onvif_port, onvif_wsdl_path):
+	def __init__(self, camera_ip_address, username, password, camera_name, onvif_port, onvif_wsdl_path):
 		# if camera is already initialised, we have multiple inheritence, and this init code has already executed.
 		if self.is_camera_init:
 			return
 
-		base_camera.__init__(self, isdebug, camera_ip_address, username, password, camera_name)
+		base_camera.__init__(self, camera_ip_address, username, password, camera_name)
 
 		self._onvif_port = onvif_port
 		self._onvif_wsdl_path = onvif_wsdl_path
 
-		if isdebug:
-			print("Connecting to camera at {}".format(camera_ip_address))
+		globals.logger.debug("Connecting to camera at {}".format(camera_ip_address))
 
 		self._camera = ONVIFCamera(camera_ip_address, self._onvif_port, self._username, self._password,
 								   onvif_wsdl_path)  # , no_cache=True)
 
-		if isdebug:
-			print("Camera connected")
+		globals.logger.debug("Camera connected")
 
 		# Create media service object
 		self._camera.devicemgmt.GetServices(False)
@@ -68,8 +67,7 @@ class base_ONVIF_camera(base_camera):
 			elif protocol.Name == "RTSP":
 				self._rtsp_port = protocol.Port[0]
 
-		if self._isdebug:
-			print("ONVIF Port: " + str(self._onvif_port))
+		globals.logger.debug("ONVIF Port: " + str(self._onvif_port))
 
 		# finally, set up init flag
 		self._isinitialised = True
@@ -95,7 +93,7 @@ class base_ONVIF_camera(base_camera):
 				raise ValueError("Cannot get frame because there is no videostream")
 
 		except Exception as detail:
-			print("error:", detail)
+			globals.logger.error(detail)
 
 		return None
 

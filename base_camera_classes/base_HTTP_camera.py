@@ -1,21 +1,22 @@
 import cv2
 
 from base_camera_classes.base_camera import base_camera
+from helpers import globals
 
 
 # a base camera class - do not instatiate directly
 class base_HTTP_camera(base_camera):
 
 	# constructor
-	def __init__(self, isdebug, camera_ip_address, username, password, camera_name, http_port, rtsp_port):
-		base_camera.__init__(self, isdebug, camera_ip_address, username, password, camera_name)
+	def __init__(self, camera_ip_address, username, password, camera_name, http_port, rtsp_port):
+		base_camera.__init__(self, camera_ip_address, username, password, camera_name)
 
 		self._http_port = http_port
 		self._rtsp_port = rtsp_port
 
-		if self._isdebug:
-			print("HTTP Port: " + str(self._http_port))
-			print("RTSP Port: " + str(self._rtsp_port))
+		globals.logger.debug("HTTP Port: " + str(self._http_port))
+		globals.logger.debug("RTSP Port: " + str(self._rtsp_port))
+
 
 	# private overrides
 
@@ -38,7 +39,7 @@ class base_HTTP_camera(base_camera):
 				raise ValueError("Cannot get frame because there is no videostream")
 
 		except Exception as detail:
-			print("error:", detail)
+			globals.logger.error(detail)
 
 		return None
 

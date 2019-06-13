@@ -7,8 +7,8 @@ from base_detector_classes.base_detector import base_detector
 class base_detector_face(base_detector):
 
 	# constructor
-	def __init__(self, isdebug, minconfidence):
-		base_detector.__init__(self, isdebug, minconfidence)
+	def __init__(self, minconfidence):
+		base_detector.__init__(self, minconfidence)
 
 	# overrides
 
@@ -18,7 +18,7 @@ class base_detector_face(base_detector):
 			return self._get_faces(frame)
 
 		except Exception as detail:
-			print("error:", detail)
+			globals.logger.error(detail)
 
 		return None
 

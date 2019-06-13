@@ -16,8 +16,8 @@ class CameraFactory:
 	def register_builder(self, key, builder):
 		self._builders[key] = builder
 
-	def create_camera(self, key, isdebug, onvif_wsdl_path, settings, **kwargs):  # typ):
+	def create_camera(self, key, onvif_wsdl_path, settings, **kwargs):  # typ):
 		builder = self._builders.get(key)
 		if not builder:
 			raise ValueError(key)
-		return builder(isdebug, onvif_wsdl_path, settings)
+		return builder(onvif_wsdl_path, settings)

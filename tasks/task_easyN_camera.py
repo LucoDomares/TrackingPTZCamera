@@ -5,6 +5,7 @@
 # --http_port 81 --rtsp_port 554
 
 
+
 import argparse
 import os
 from multiprocessing import Manager, Process, Lock
@@ -17,6 +18,7 @@ from base_camera_classes.base_ONVIF_PTZ_camera import base_ONVIF_PTZ_camera
 from camera_classes.easyN_A110 import easyN_A110
 from detector_classes.detector_face_openface_nn4 import openface_nn4_detector
 from helpers import application_helpers
+from helpers import globals
 
 
 def toggle_auto_tracking(auto_track_enabled):
@@ -40,6 +42,8 @@ def start_PTZ_thread(lock, camera, pan_amt, tilt_amt, is_system_on_high_alert, c
 
 # check to see if this is the main body of execution
 if __name__ == "__main__":
+	globals.initialize()
+
 	# construct the argument parser and parse the arguments
 	ap = argparse.ArgumentParser()
 	ap.add_argument("-i", "--ip", type=str, required=True,
@@ -93,8 +97,7 @@ if __name__ == "__main__":
 	rtsp_port = args["rtsp_port"]
 
 	# instantiate our face detector
-	detector = openface_nn4_detector(isdebug=True,
-									 minconfidence=minconfidence,
+	detector = openface_nn4_detector(minconfidence=minconfidence,
 									 detector_path=detector_path,
 									 proto_file=proto_file,
 									 detector_model_file=detector_model_file,
@@ -103,7 +106,7 @@ if __name__ == "__main__":
 									 label_encoder_file=label_encoder_file)
 
 	# open connection to the camera
-	camera = easyN_A110(isdebug=True, camera_ip_address=ip_addr, username=username, password=password,
+	camera = easyN_A110(camera_ip_address=ip_addr, username=username, password=password,
 						camera_name=camera_name, onvif_port=onvif_port, onvif_wsdl_path=wsdl,
 						http_port=http_port, rtsp_port=rtsp_port)
 	camera.open_video()
@@ -140,8 +143,11 @@ if __name__ == "__main__":
 				# grab the next frame
 				frame = camera.get_frame()
 
+				if frame is None:
+					continue
+
 				# resize the frame for better detection accuracy
-				frame = imutils.resize(frame, width=640, inter=cv2.INTER_CUBIC)
+				frame = imutils.resize(frame, width=1280, inter=cv2.INTER_CUBIC)
 
 				if auto_track_enabled.value != 0:
 					if calculate_frame_centre:
@@ -270,18 +276,18 @@ if __name__ == "__main__":
 				# update the FPS counter
 				fps.update()
 
-				# debug print every 100 frames
+				# log every 100 frames
 				if fps._numFrames > 100:
 					# stop the timer
 					fps.stop()
-					print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
-					print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
+					globals.logger.info("elasped time: {:.2f}".format(fps.elapsed()))
+					globals.logger.info("approx. FPS: {:.2f}".format(fps.fps()))
 
 					# restart the timer
 					fps = FPS().start()
 
 		except Exception as detail:
-			print("error:", detail)
+			globals.logger.error("error:", detail)
 
 		finally:
 			# do a bit of cleanup

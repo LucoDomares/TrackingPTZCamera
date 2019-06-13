@@ -5,8 +5,7 @@ from abc import ABC, abstractmethod
 class base_detector(ABC):
 
 	# constructor
-	def __init__(self, isdebug, minconfidence):
-		self._isdebug = isdebug
+	def __init__(self, minconfidence):
 		self._minconfidence = minconfidence
 
 		self._detector = None

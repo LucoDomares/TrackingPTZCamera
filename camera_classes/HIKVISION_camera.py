@@ -6,6 +6,7 @@ import cv2
 from imutils.video import VideoStream
 
 from base_camera_classes.base_HTTP_PTZ_camera import base_HTTP_PTZ_camera
+from helpers import globals
 
 
 # a generic HIKVISION Camera class
@@ -13,10 +14,10 @@ from base_camera_classes.base_HTTP_PTZ_camera import base_HTTP_PTZ_camera
 class HIKVISION_camera(base_HTTP_PTZ_camera):
 
 	# constructor
-	def __init__(self, isdebug, camera_ip_address, username, password, camera_name, onvif_port, onvif_wsdl_path,
+	def __init__(self, camera_ip_address, username, password, camera_name, onvif_port, onvif_wsdl_path,
 				 http_port, rtsp_port):
 		# init
-		base_HTTP_PTZ_camera.__init__(self, isdebug, camera_ip_address, username, password, camera_name,
+		base_HTTP_PTZ_camera.__init__(self, camera_ip_address, username, password, camera_name,
 									  http_port, rtsp_port)
 
 		self._generate_rnd_numbers_on_command = True
@@ -48,13 +49,11 @@ class HIKVISION_camera(base_HTTP_PTZ_camera):
 		self._address_full = "rtsp://{}:{}/PSIA/Streaming/channels/2?videoCodecType=H.264".format(
 			self._camera_ip_address, str(self._rtsp_port))
 
-		if self._isdebug:
-			print("Opening VideoStream")
+		globals.logger.info("Opening VideoStream")
 
 		self._videostream = VideoStream(self._address_full).start()
 
-		if self._isdebug:
-			print("VideoStream opened")
+		globals.logger.info("VideoStream opened")
 
 		time.sleep(0.5)
 
@@ -79,7 +78,7 @@ class HIKVISION_camera(base_HTTP_PTZ_camera):
 				raise ValueError("Cannot get frame because there is no videostream")
 
 		except Exception as detail:
-			print("error:", detail)
+			globals.logger.error(detail)
 
 		return None
 
@@ -144,7 +143,7 @@ class HIKVISION_cameraCameraBuilder:
 	def __init__(self):
 		self._instance = None
 
-	def __call__(self, isdebug, onvif_wsdl_path, settings, **_ignored):
+	def __call__(self, onvif_wsdl_path, settings, **_ignored):
 		camera_ip_address = settings['ip_addr']
 		username = settings['username']
 		password = settings['password']
@@ -154,7 +153,7 @@ class HIKVISION_cameraCameraBuilder:
 		rtsp_port = settings['rtsp_port']
 
 		if not self._instance:
-			self._instance = HIKVISION_camera(isdebug, camera_ip_address, username, password, camera_name, onvif_port,
+			self._instance = HIKVISION_camera(camera_ip_address, username, password, camera_name, onvif_port,
 											  onvif_wsdl_path, http_port, rtsp_port)
 
 		return self._instance
@@ -164,7 +163,7 @@ class HIKVISION_cameraTaskBuilder:
 	def __init__(self):
 		self._instance = None
 
-	def __call__(self, isdebug, onvif_wsdl_path, camera_settings, appsettings, **_ignored):
+	def __call__(self, onvif_wsdl_path, camera_settings, appsettings, **_ignored):
 		camera_ip_address = camera_settings['ip_addr']
 		username = camera_settings['username']
 		password = camera_settings['password']
@@ -203,7 +202,7 @@ class HIKVISION_cameraTaskBuilder:
 								cwd=os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 		# debug
-		# print(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+		# globals.logger.debug(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 		# (out, err) = proc.communicate()
 
 		return proc

@@ -9,10 +9,10 @@ from base_camera_classes.base_PTZ_camera import base_PTZ_camera
 class base_ONVIF_PTZ_camera(base_PTZ_camera, base_ONVIF_camera):
 
 	# constructor
-	def __init__(self, isdebug, camera_ip_address, username, password, camera_name, onvif_port, onvif_wsdl_path):
+	def __init__(self, camera_ip_address, username, password, camera_name, onvif_port, onvif_wsdl_path):
 		# multiple inheritance
-		base_PTZ_camera.__init__(self, isdebug, camera_ip_address, username, password, camera_name)
-		base_ONVIF_camera.__init__(self, isdebug, camera_ip_address, username, password, camera_name, onvif_port,
+		base_PTZ_camera.__init__(self, camera_ip_address, username, password, camera_name)
+		base_ONVIF_camera.__init__(self, camera_ip_address, username, password, camera_name, onvif_port,
 								   onvif_wsdl_path)
 
 		self._ptz_status = None

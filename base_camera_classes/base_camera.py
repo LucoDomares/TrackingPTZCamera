@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from multiprocessing import Queue, Lock
 
+from helpers import globals
+
 
 # a base camera class - do not instatiate directly
 class base_camera(ABC):
@@ -58,9 +60,8 @@ class base_camera(ABC):
 		return self._auto_track_enabled
 
 	# constructor
-	def __init__(self, isdebug, camera_ip_address, username, password, camera_name):
+	def __init__(self, camera_ip_address, username, password, camera_name):
 		# multiple inheritance
-		self._isdebug = isdebug
 		self._lock = Lock()
 		self._username = username
 		self._password = password
@@ -95,7 +96,7 @@ class base_camera(ABC):
 			self._open_video_impl()
 
 		except Exception as detail:
-			print("error:", detail)
+			globals.logger.error(detail)
 
 	def close_video(self):
 		try:
@@ -103,7 +104,7 @@ class base_camera(ABC):
 				self._videostream.stop()
 
 		except Exception as detail:
-			print("error:", detail)
+			globals.logger.error(detail)
 			raise
 
 	def get_frame(self):
@@ -112,7 +113,7 @@ class base_camera(ABC):
 			return self._get_frame_impl()
 
 		except Exception as detail:
-			print("error:", detail)
+			globals.logger.error(detail)
 			raise
 
 		return None

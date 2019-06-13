@@ -12,6 +12,7 @@ from base_camera_classes.base_ONVIF_PTZ_camera import base_ONVIF_PTZ_camera
 from camera_classes.easyN_A110 import easyN_A110
 from detector_classes.detector_face_openface_nn4 import openface_nn4_detector
 from helpers import application_helpers
+from helpers import globals
 
 
 def toggle_auto_tracking(auto_track_enabled):
@@ -35,6 +36,8 @@ def start_PTZ_thread(lock, camera, pan_amt, tilt_amt, is_system_on_high_alert, c
 
 # check to see if this is the main body of execution
 if __name__ == "__main__":
+	globals.initialize()
+
 	# construct the argument parser and parse the arguments
 	ap = argparse.ArgumentParser()
 	ap.add_argument("-i", "--ip", type=str, required=True,
@@ -82,8 +85,7 @@ if __name__ == "__main__":
 	rtsp_port = 554
 
 	# instantiate our face detector
-	detector = openface_nn4_detector(isdebug=True,
-									 minconfidence=minconfidence,
+	detector = openface_nn4_detector(minconfidence=minconfidence,
 									 detector_path=detector_path,
 									 proto_file=proto_file,
 									 detector_model_file=detector_model_file,
@@ -92,12 +94,12 @@ if __name__ == "__main__":
 									 label_encoder_file=label_encoder_file)
 
 	# open connection to the camera
-	# camera = easyN_A110(isdebug=True, camera_ip_address=ip_addr, username=username, password=password,
+	# camera = easyN_A110(camera_ip_address=ip_addr, username=username, password=password,
 	#						   camera_name=camera_name, http_port=http_port, rtsp_port=rtsp_port)
-	camera = easyN_A110(isdebug=True, camera_ip_address=ip_addr, username=username, password=password,
+	camera = easyN_A110(camera_ip_address=ip_addr, username=username, password=password,
 						camera_name=camera_name, onvif_port=onvif_port, onvif_wsdl_path=wsdl,
 						http_port=http_port, rtsp_port=rtsp_port)
-	# camera = easyN_A110(isdebug=True, camera_ip_address=ip_addr, username=username, password=password,
+	# camera = easyN_A110(camera_ip_address=ip_addr, username=username, password=password,
 	#					camera_name=camera_name, http_port=http_port, rtsp_port=rtsp_port)
 	camera.open_video()
 
@@ -267,12 +269,12 @@ if __name__ == "__main__":
 			# update the FPS counter
 			fps.update()
 
-			# debug print every 100 frames
+			# debug every 100 frames
 			if fps._numFrames > 100:
 				# stop the timer
 				fps.stop()
-				print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
-				print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
+				globals.logger.debug("elasped time: {:.2f}".format(fps.elapsed()))
+				globals.logger.debug("approx. FPS: {:.2f}".format(fps.fps()))
 
 				# restart the timer
 				fps = FPS().start()

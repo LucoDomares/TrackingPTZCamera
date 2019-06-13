@@ -80,8 +80,7 @@ if __name__ == "__main__":
 	camera_name = "study cam"
 
 	# instantiate our face detector
-	detector = openface_nn4_detector(isdebug=True,
-									 minconfidence=minconfidence,
+	detector = openface_nn4_detector(minconfidence=minconfidence,
 									 detector_path=detector_path,
 									 proto_file=proto_file,
 									 detector_model_file=detector_model_file,
@@ -90,7 +89,7 @@ if __name__ == "__main__":
 									 label_encoder_file=label_encoder_file)
 
 	# open connection to the camera
-	camera = vstarcam_C7823WIP(isdebug=True, camera_ip_address=ip_addr, username=username, password=password,
+	camera = vstarcam_C7823WIP(camera_ip_address=ip_addr, username=username, password=password,
 							   camera_name=camera_name, onvif_port=onvif_port, onvif_wsdl_path=wsdl)
 	camera.open_video()
 
@@ -260,12 +259,12 @@ if __name__ == "__main__":
 			# update the FPS counter
 			fps.update()
 
-			# debug print every 100 frames
+			# debug output every 100 frames
 			if fps._numFrames > 100:
 				# stop the timer
 				fps.stop()
-				print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
-				print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
+				globals.logger.debug("elasped time: {:.2f}".format(fps.elapsed()))
+				globals.logger.debug("approx. FPS: {:.2f}".format(fps.fps()))
 
 				# restart the timer
 				fps = FPS().start()

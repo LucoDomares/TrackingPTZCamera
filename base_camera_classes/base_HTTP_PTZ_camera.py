@@ -5,6 +5,7 @@ import requests
 
 from base_camera_classes.base_HTTP_camera import base_HTTP_camera
 from base_camera_classes.base_PTZ_camera import base_PTZ_camera
+from helpers import globals
 
 
 # a base camera class - do not instatiate directly
@@ -15,16 +16,16 @@ class base_HTTP_PTZ_camera(base_PTZ_camera, base_HTTP_camera):
 		return True
 
 	# constructor
-	def __init__(self, isdebug, camera_ip_address, username, password, camera_name, http_port, rtsp_port):
-		base_PTZ_camera.__init__(self, isdebug, camera_ip_address, username, password, camera_name)
-		base_HTTP_camera.__init__(self, isdebug, camera_ip_address, username, password, camera_name, http_port,
+	def __init__(self, camera_ip_address, username, password, camera_name, http_port, rtsp_port):
+		base_PTZ_camera.__init__(self, camera_ip_address, username, password, camera_name)
+		base_HTTP_camera.__init__(self, camera_ip_address, username, password, camera_name, http_port,
 								  rtsp_port)
 
 		self._is_ptz_move_relative = False  # HTTP cameras dont support relative movement
 		self._ptz_tracking_threshold = 50  # if the target is within this no of pixels, we wont bother moving at all.
 		self._ptz_movement_small_threshold = 80  # if the target is within this no of pixels, we do small movements of PTZ.
-		self._pan_tilt_sleep_long = 0.8  # seconds
-		self._pan_tilt_sleep_short = 0.5  # seconds
+		self._pan_tilt_sleep_long = 1.0  # seconds
+		self._pan_tilt_sleep_short = 0.8  # seconds
 
 		self._generate_rnd_numbers_on_command = False
 		self._stop_flag = False
@@ -61,14 +62,14 @@ class base_HTTP_PTZ_camera(base_PTZ_camera, base_HTTP_camera):
 				if self._generate_rnd_numbers_on_command:
 					command_url = command_url + str(random.randint(1000000000000000, 9999999999999999))
 
-				print("PTZ: " + command_url)
-				r = self._http_session.get(command_url, timeout=0.5)  # requests
+				globals.logger.info("PTZ: " + command_url)
+				r = self._http_session.get(command_url, timeout=4.5)  # requests
 
 				if r.status_code != 200:  # OK
-					print("error:", "bad command result - " + r.reason)
+					globals.logger.error("bad command result - " + r.reason)
 
 			except Exception as detail:
-				print("error:", detail)
+				globals.logger.error(detail)
 
 	# private overrides
 
@@ -105,10 +106,12 @@ class base_HTTP_PTZ_camera(base_PTZ_camera, base_HTTP_camera):
 		if has_panned_tilt_zoomed:
 			if abs(self._ptz_pan_amt) > 80 or abs(self._ptz_tilt_amt > 80):
 				# Wait for camera to move longer as there's further to move
+				globals.logger.info('Sleeping for {} seconds'.format(self._pan_tilt_sleep_long))
 				time.sleep(self._pan_tilt_sleep_long)
 
 			else:
 				# Wait for camera to move only a short while
+				globals.logger.info('Sleeping for {} seconds'.format(self._pan_tilt_sleep_short))
 				time.sleep(self._pan_tilt_sleep_short)
 
 			# Stop continuous move

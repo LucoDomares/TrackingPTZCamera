@@ -12,9 +12,9 @@ from base_detector_classes.base_detector_face import base_detector_face
 class openface_nn4_detector(base_detector_face):
 
 	# constructor
-	def __init__(self, isdebug, minconfidence, detector_path, proto_file, detector_model_file, embedding_model_file,
+	def __init__(self, minconfidence, detector_path, proto_file, detector_model_file, embedding_model_file,
 				 recogniser_model_file, label_encoder_file):
-		base_detector_face.__init__(self, isdebug, minconfidence)
+		base_detector_face.__init__(self, minconfidence)
 
 		self._detector_path = detector_path
 		self._proto_file = proto_file

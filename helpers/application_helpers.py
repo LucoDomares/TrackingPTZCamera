@@ -1,4 +1,3 @@
-import logging
 import os
 import signal
 import sys
@@ -11,12 +10,13 @@ from imutils.video import FPS
 
 from base_camera_classes.base_HTTP_PTZ_camera import base_HTTP_PTZ_camera
 from base_camera_classes.base_ONVIF_PTZ_camera import base_ONVIF_PTZ_camera
+from helpers import globals
 
 
 # function to handle keyboard interrupt
 def signal_handler(sig, frame):
-	# print a status message
-	print("[INFO] You pressed `ctrl + c`! Exiting...")
+	# log a status message
+	globals.logger.info("You pressed `ctrl + c`! Exiting...")
 
 	# exit
 	sys.exit()
@@ -49,7 +49,7 @@ def PTZ_task(lock, ptz_camera, pan_amt, tilt_amt, is_system_on_high_alert):
 	signal.signal(signal.SIGINT, signal_handler)
 
 	if not isinstance(ptz_camera, base_ONVIF_PTZ_camera) and not isinstance(ptz_camera, base_HTTP_PTZ_camera):
-		raise TypeError("ptz_camera must be descended from type base_ONVIF_PTZ_camera or base_PTZ_camera")
+		raise TypeError("ptz_camera must be descended from type base_ONVIF_PTZ_camera or base_HTTP_PTZ_camera")
 
 	# loop indefinitely
 	while True:
@@ -122,12 +122,12 @@ def simple_cam_task(camera, detector):
 				# update the FPS counter
 				fps.update()
 
-				# debug print every 100 frames
+				# debug output every 100 frames
 				if fps._numFrames > 100:
 					# stop the timer
 					fps.stop()
-					print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
-					print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
+					globals.logger.debug("elasped time: {:.2f}".format(fps.elapsed()))
+					globals.logger.debug("approx. FPS: {:.2f}".format(fps.fps()))
 
 					# restart the timer
 					fps = FPS().start()
@@ -310,12 +310,12 @@ def camera_task(camera, detector):
 				# update the FPS counter
 				fps.update()
 
-				# debug print every 100 frames
+				# debug every 100 frames
 				if fps._numFrames > 100:
 					# stop the timer
 					fps.stop()
-					print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
-					print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
+					globals.logger.debug("elasped time: {:.2f}".format(fps.elapsed()))
+					globals.logger.debug("approx. FPS: {:.2f}".format(fps.fps()))
 
 					# restart the timer
 					fps = FPS().start()
@@ -342,19 +342,6 @@ def start_PTZ_thread(lock, camera, pan_amt, tilt_amt, is_system_on_high_alert, c
 	processPTZ.start()
 
 	return processPTZ
-
-
-def dmprint(debug_message):
-	logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
-
-	logging.debug(debug_message)
-
-
-def exprint(error):
-	logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
-
-	logging.error("error:", error)
-
 
 def frame_add_watermark_text(frame, camera):
 	# put watermark at top of frame

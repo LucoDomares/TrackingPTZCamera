@@ -16,8 +16,8 @@ class TaskFactory:
 	def register_builder(self, key, builder):
 		self._builders[key] = builder
 
-	def create_task(self, key, isdebug, onvif_wsdl_path, settings, appsettings, **kwargs):  # typ):
+	def create_task(self, key, onvif_wsdl_path, settings, appsettings, **kwargs):  # typ):
 		builder = self._builders.get(key)
 		if not builder:
 			raise ValueError(key)
-		return builder(isdebug, onvif_wsdl_path, settings, appsettings)
+		return builder(onvif_wsdl_path, settings, appsettings)
